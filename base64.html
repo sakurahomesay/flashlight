@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多功能编码转换工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .text-box {
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: monospace;
+        }
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 120px;
+        }
+        .base64-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .qq-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .thunder-btn {
+            background-color: #9C27B0;
+            color: white;
+        }
+        .clear-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>多功能编码转换工具</h1>
+        
+        <div class="text-box">
+            <textarea id="inputText" placeholder="请输入要转换的内容..."></textarea>
+        </div>
+        
+        <div class="button-row">
+            <button class="base64-btn" onclick="convert('base64-encode')">Base64编码</button>
+            <button class="base64-btn" onclick="convert('base64-decode')">Base64解码</button>
+            <button class="qq-btn" onclick="convert('qq-encode')">QQ旋风编码</button>
+            <button class="qq-btn" onclick="convert('qq-decode')">QQ旋风解码</button>
+            <button class="thunder-btn" onclick="convert('thunder-encode')">迅雷编码</button>
+            <button class="thunder-btn" onclick="convert('thunder-decode')">迅雷解码</button>
+            <button class="clear-btn" onclick="clearText()">清空内容</button>
+        </div>
+        
+        <div class="info">
+            <p><strong>功能说明：</strong></p>
+            <ul>
+                <li><strong>Base64编码</strong>：将任意文本转换为Base64格式</li>
+                <li><strong>Base64解码</strong>：将Base64格式还原为原始文本</li>
+                <li><strong>QQ旋风编码</strong>：将文本转换为QQ旋风专用格式(qqdl://)</li>
+                <li><strong>QQ旋风解码</strong>：从QQ旋风格式还原原始文本</li>
+                <li><strong>迅雷编码</strong>：将文本转换为迅雷专用格式(thunder://)</li>
+                <li><strong>迅雷解码</strong>：从迅雷格式还原原始文本</li>
+            </ul>
+            <p>所有转换都在本地完成，无需联网，保证数据安全。</p>
+        </div>
+    </div>
+
+    <script>
+        const inputEl = document.getElementById("inputText");
+        
+        function convert(type) {
+            const text = inputEl.value.trim();
+            
+            if (!text) {
+                alert("请输入要转换的内容");
+                return;
+            }
+            
+            try {
+                let result;
+                
+                switch(type) {
+                    case 'base64-encode':
+                        result = btoa(unescape(encodeURIComponent(text)));
+                        break;
+                        
+                    case 'base64-decode':
+                        result = decodeURIComponent(escape(atob(text)));
+                        break;
+                        
+                    case 'qq-encode':
+                        result = "qqdl://" + btoa(unescape(encodeURIComponent(text)));
+                        break;
+                        
+                    case 'qq-decode':
+                        if (!text.startsWith("qqdl://")) {
+                            throw new Error("无效的QQ旋风格式，应以qqdl://开头");
+                        }
+                        const qqBase64 = text.substring(7);
+                        result = decodeURIComponent(escape(atob(qqBase64)));
+                        break;
+                        
+                    case 'thunder-encode':
+                        result = "thunder://" + btoa(unescape(encodeURIComponent("AA" + text + "ZZ")));
+                        break;
+                        
+                    case 'thunder-decode':
+                        if (!text.startsWith("thunder://")) {
+                            throw new Error("无效的迅雷格式，应以thunder://开头");
+                        }
+                        const thunderBase64 = text.substring(10);
+                        let decoded = decodeURIComponent(escape(atob(thunderBase64)));
+                        if (decoded.startsWith("AA") && decoded.endsWith("ZZ")) {
+                            decoded = decoded.substring(2, decoded.length - 2);
+                        }
+                        result = decoded;
+                        break;
+                }
+                
+                inputEl.value = result;
+            } catch (e) {
+                alert("转换失败: " + e.message);
+            }
+        }
+        
+        function clearText() {
+            inputEl.value = "";
+        }
+    </script>
+</body>
+</html>
